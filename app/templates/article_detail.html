@@ -1,0 +1,76 @@
+{% extends "base.html" %} {% block title %}{{ article.title }} - News
+Aggregator{% endblock %} {% block content %}
+<div class="article-detail">
+	<nav class="breadcrumb">
+		<a href="{{ url_for('main.index') }}">← Back to Articles</a>
+	</nav>
+
+	<article class="full-article">
+		{% if article.thumbnail_url %}
+		<div class="article-hero-image">
+			<img src="{{ article.thumbnail_url }}" alt="{{ article.title }}" />
+		</div>
+		{% endif %}
+
+		<header class="article-header">
+			<h1>{{ article.title }}</h1>
+
+			<div class="article-metadata">
+				{% if article.author %}
+				<div class="meta-item">
+					<strong>Author:</strong> {{ article.author }}
+				</div>
+				{% endif %} {% if article.published %}
+				<div class="meta-item">
+					<strong>Published:</strong> {{ article.published.strftime('%B %d, %Y
+					at %I:%M %p') }}
+				</div>
+				{% endif %} {% if article.updated and article.updated !=
+				article.published %}
+				<div class="meta-item">
+					<strong>Updated:</strong> {{ article.updated.strftime('%B %d, %Y at
+					%I:%M %p') }}
+				</div>
+				{% endif %}
+				{% if article.source_feed %}
+				<div class="meta-item">
+					<strong>Source:</strong> {{ article.source_feed }}
+				</div>
+				{% endif %} 
+				{% if article.language %}
+				<div class="meta-item">
+					<strong>Language:</strong> {{ article.language.upper() }}
+				</div>
+				{% endif %}
+			</div>
+
+			{% if article.categories %}
+			<div class="article-tags">
+				{% for category in article.categories.split(',') %}
+				<span class="tag">{{ category.strip() }}</span>
+				{% endfor %}
+			</div>
+			{% endif %}
+		</header>
+
+		<div class="article-body">
+			{% if article.content and article.content != article.summary %}
+			<div class="article-content">{{ article.content|safe }}</div>
+			{% elif article.summary %}
+			<div class="article-summary-full">{{ article.summary }}</div>
+			{% endif %}
+		</div>
+
+		<footer class="article-footer">
+			<a
+				href="{{ article.link }}"
+				class="external-link"
+				target="_blank"
+				rel="noopener noreferrer"
+			>
+				Read Original Article →
+			</a>
+		</footer>
+	</article>
+</div>
+{% endblock %}

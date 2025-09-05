@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}{{ error }} - News Aggregator{% endblock %}
+
+{% block content %}
+<div class="error-page">
+    <h1>{{ error }}</h1>
+    <p>{{ message }}</p>
+    <a href="{{ url_for('main.index') }}" class="back-home">← Back to Home</a>
+</div>
+{% endblock %}

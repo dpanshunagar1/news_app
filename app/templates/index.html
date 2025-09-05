@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Latest News - News Aggregator{% endblock %}
+
+{% block content %}
+<div class="news-header">
+    <h2>Latest Articles</h2>
+    {% if total_articles %}
+        <p class="article-count">{{ total_articles }} articles available</p>
+    {% endif %}
+</div>
+
+<!-- Enhanced Filters -->
+<div class="filters-section">
+    <form method="GET" class="filters-form">
+        <div class="filter-group">
+            <label for="author">Author:</label>
+            <select name="author" id="author" onchange="this.form.submit()">
+                <option value="">All Authors</option>
+                {% for author in authors %}
+                    <option value="{{ author }}" {% if author == current_author %}selected{% endif %}>
+                        {{ author }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label for="source">Source:</label>
+            <select name="source" id="source" onchange="this.form.submit()">
+                <option value="">All Sources</option>
+                {% for source in sources %}
+                    <option value="{{ source }}" {% if source == current_source %}selected{% endif %}>
+                        {{ source.split('/')[-1] if source else 'Unknown' }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label for="category">Category:</label>
+            <input type="text" name="category" id="category" 
+                   value="{{ current_category }}" 
+                   placeholder="Enter category..."
+                   onchange="this.form.submit()">
+        </div>
+        
+        <button type="button" onclick="clearFilters()" class="clear-filters">Clear Filters</button>
+    </form>
+</div>
+
+{% if error %}
+    <div class="error-message">
+        <p>{{ error }}</p>
+        <p>Please check your database connection and try again.</p>
+    </div>
+{% elif articles %}
+    <div class="articles-list">
+        {% for article in articles %}
+            <article class="article-card">
+                <!-- Article Thumbnail -->
+                {% if article.thumbnail_url %}
+                    <div class="article-thumbnail">
+                        <img src="{{ article.thumbnail_url }}" alt="{{ article.title }}" loading="lazy">
+                    </div>
+                {% endif %}
+                
+                <div class="article-content">
+                    <h3 class="article-title">
+                        <a href="{{ article.link }}" target="_blank" rel="noopener noreferrer">
+                            {{ article.title }}
+                        </a>
+                    </h3>
+                    
+                    <!-- Enhanced Metadata -->
+                    <div class="article-meta">
+                        {% if article.author %}
+                            <span class="article-author">👤 {{ article.author }}</span>
+                        {% endif %}
+                        
+                        {% if article.published %}
+                            <span class="article-date">
+                                📅 {{ article.published.strftime('%B %d, %Y at %I:%M %p') }}
+                            </span>
+                        {% endif %}
+                        
+                        <!-- {% if article.source_feed %}
+                            <span class="article-source">
+                                📰 {{ article.source_feed.split('/')[-1] }}
+                            </span>
+                        {% endif %} -->
+                    </div>
+                    
+                    {% if article.categories %}
+                        <div class="article-categories">
+                            {% for category in article.categories.split(',')[:3] %}
+                                <span class="category-tag">🏷️ {{ category.strip() }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    {% if article.summary %}
+                        <p class="article-summary">
+                            {{ article.summary[:400] }}{% if article.summary|length > 400 %}...{% endif %}
+                        </p>
+                    {% endif %}
+                    
+                    <div class="article-actions">
+                        <a href="{{ article.link }}" class="read-more" target="_blank" rel="noopener noreferrer">
+                            Read Full Article →
+                        </a>
+                        
+                        {% if article.content and article.content != article.summary %}
+                            <a href="{{ url_for('main.article_detail', article_id=article.id) }}" class="read-detail">
+                                View Details
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if has_prev or has_next %}
+        <div class="pagination">
+            {% if has_prev %}
+                <a href="{{ url_for('main.index', page=prev_page, author=current_author, category=current_category, source=current_source) }}" 
+                   class="pagination-btn">← Previous</a>
+            {% endif %}
+            
+            <span class="pagination-info">Page {{ current_page }}</span>
+            
+            {% if has_next %}
+                <a href="{{ url_for('main.index', page=next_page, author=current_author, category=current_category, source=current_source) }}" 
+                   class="pagination-btn">Next →</a>
+            {% endif %}
+        </div>
+    {% endif %}
+{% else %}
+    <div class="no-articles">
+        <h3>No articles found</h3>
+        <p>Run the fetch_articles.py script to populate the database with news articles.</p>
+    </div>
+{% endif %}
+
+<script>
+function clearFilters() {
+    window.location.href = "{{ url_for('main.index') }}";
+}
+</script>
+{% endblock %}
