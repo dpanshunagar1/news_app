@@ -1,0 +1,19 @@
+
+name: Trigger Fetch Endpoint
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"   # every 6 hours
+  workflow_dispatch:        # allow manual trigger
+
+jobs:
+  call-endpoint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Railway endpoint
+        run: |
+          curl -X POST "$API_URL" \
+          -H "Authorization: Bearer $API_SECRET"
+    env:
+      API_URL: ${{ secrets.API_URL }}
+      API_SECRET: ${{ secrets.API_SECRET }}
