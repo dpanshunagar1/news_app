@@ -1,0 +1,18 @@
+name: Fetch RSS Articles
+
+on:
+  schedule:
+    # Run every 6 hours
+    - cron: '0 */6 * * *'
+  
+  # Allow manual triggering
+  workflow_dispatch:
+
+jobs:
+  fetch-articles:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Fetch Articles
+      run: |
+        curl -X POST "https://web-production-3df2.up.railway.app/cron/fetch/?token=${{ secrets.CRON_SECRET }}"
