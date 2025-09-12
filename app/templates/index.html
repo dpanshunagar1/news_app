@@ -13,7 +13,7 @@
 <!-- Enhanced Filters -->
 <div class="filters-section">
     <form method="GET" class="filters-form">
-        <div class="filter-group">
+        <!-- <div class="filter-group">
             <label for="author">Author:</label>
             <select name="author" id="author" onchange="this.form.submit()">
                 <option value="">All Authors</option>
@@ -35,7 +35,7 @@
                     </option>
                 {% endfor %}
             </select>
-        </div>
+        </div> -->
         
         <div class="filter-group">
             <label for="category">Category:</label>
@@ -99,11 +99,11 @@
                         </div>
                     {% endif %}
                     
-                    {% if article.summary %}
+                    <!-- {% if article.summary %}
                         <p class="article-summary">
                             {{ article.summary[:400] }}{% if article.summary|length > 400 %}...{% endif %}
                         </p>
-                    {% endif %}
+                    {% endif %} -->
                     
                     <div class="article-actions">
                         <a href="{{ article.link }}" class="read-more" target="_blank" rel="noopener noreferrer">

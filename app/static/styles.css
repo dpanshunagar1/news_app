@@ -80,7 +80,7 @@ body {
     background: white;
     border-radius: 8px;
     padding: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    /* box-shadow: 0 2px 4px rgba(0,0,0,0.1); */
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -188,7 +188,7 @@ body {
 /* Mobile responsiveness */
 @media (max-width: 768px) {
     .container {
-        padding: 0 15px;
+        /* padding: 0 15px; */
     }
     
     .header h1 {
@@ -250,6 +250,7 @@ body {
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 0.9rem;
+    width:100%;
 }
 
 .clear-filters {
@@ -273,7 +274,7 @@ body {
     background: white;
     border-radius: 8px;
     padding: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    /* box-shadow: 0 2px 4px rgba(0,0,0,0.1); */
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 

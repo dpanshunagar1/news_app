@@ -22,7 +22,7 @@ def index():
     # Get filter parameters
     author_filter = request.args.get('author', '').strip()
     category_filter = request.args.get('category', '').strip()
-    source_filter = request.args.get('source', '').strip()
+    # source_filter = request.args.get('source', '').strip()
     
     # Calculate offset for pagination
     offset = (page - 1) * per_page
@@ -40,8 +40,8 @@ def index():
         if category_filter:
             query = query.filter(Article.categories.ilike(f'%{category_filter}%'))
             
-        if source_filter:
-            query = query.filter(Article.source_feed.ilike(f'%{source_filter}%'))
+        # if source_filter:
+        #     query = query.filter(Article.source_feed.ilike(f'%{source_filter}%'))
         
         # Get total count efficiently
         total_articles = query.count()
@@ -55,11 +55,11 @@ def index():
         # Get unique authors, sources for filter dropdowns
         authors = session.query(Article.author)\
             .filter(Article.author.isnot(None))\
-            .distinct().limit(20).all()
+            .distinct().all()
         
-        sources = session.query(Article.source_feed)\
-            .filter(Article.source_feed.isnot(None))\
-            .distinct().limit(10).all()
+        # sources = session.query(Article.source_feed)\
+        #     .filter(Article.source_feed.isnot(None))\
+        #     .distinct().limit(10).all()
         
         # Calculate pagination info
         has_prev = page > 1
@@ -76,10 +76,11 @@ def index():
                              current_page=page,
                              total_articles=total_articles,
                              authors=[a[0] for a in authors],
-                             sources=[s[0] for s in sources],
+                            #  sources=[s[0] for s in sources],
                              current_author=author_filter,
-                             current_category=category_filter,
-                             current_source=source_filter)
+                             current_category=category_filter
+                            #  current_source=source_filter)
+        )
     
     except Exception as e:
         print(f"Error fetching articles: {e}")
@@ -97,7 +98,7 @@ def api_articles():
     # Get filter parameters
     author_filter = request.args.get('author', '').strip()
     category_filter = request.args.get('category', '').strip()
-    source_filter = request.args.get('source', '').strip()
+    # source_filter = request.args.get('source', '').strip()
     
     # Calculate offset for pagination
     offset = (page - 1) * per_page
@@ -115,8 +116,8 @@ def api_articles():
         if category_filter:
             query = query.filter(Article.categories.ilike(f'%{category_filter}%'))
             
-        if source_filter:
-            query = query.filter(Article.source_feed.ilike(f'%{source_filter}%'))
+        # if source_filter:
+        #     query = query.filter(Article.source_feed.ilike(f'%{source_filter}%'))
         
         # Get total count efficiently
         total_articles = query.count()
@@ -147,8 +148,8 @@ def api_articles():
             },
             'filters': {
                 'author': author_filter,
-                'category': category_filter,
-                'source': source_filter
+                'category': category_filter
+                # 'source': source_filter
             }
         })
     

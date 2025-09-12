@@ -7,48 +7,18 @@ This gives you the best of both worlds: RSS metadata + clean article content.
 """
 
 import os
-import psycopg2
 import feedparser
 from newspaper import Article
 from dotenv import load_dotenv
 from datetime import datetime
 from app import create_app, get_db_session
 from app.models import Article as ArticleModel
-from sqlalchemy import text
+from database import truncate_articles ,get_rss_feeds # Reuse existing truncate function
 
 # Load environment variables
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-
-def truncate_articles():
-    """Clean the entire articles table and reset IDs"""
-    app = create_app()
-    with app.app_context():
-        session = get_db_session()
-        try:
-            session.execute(text("TRUNCATE TABLE articles RESTART IDENTITY CASCADE;"))
-            session.commit()
-            print("🧨 Articles table truncated (IDs reset).")
-        except Exception as e:
-            session.rollback()
-            print(f"❌ Error truncating table: {e}")
-        finally:
-            session.close()
-
-def get_rss_feeds():
-    """Fetch all RSS feed URLs from Supabase 'rss' table"""
-    try:
-        conn = psycopg2.connect(DATABASE_URL)
-        cur = conn.cursor()
-        cur.execute("SELECT url FROM rss;")
-        feeds = cur.fetchall()
-        cur.close()
-        conn.close()
-        return feeds
-    except Exception as e:
-        print(f"❌ Error fetching RSS feeds from database: {e}")
-        return []
 
 def extract_with_newspaper3k(url):
     """Extract clean article content using newspaper3k"""
@@ -80,7 +50,6 @@ def extract_with_newspaper3k(url):
         return None
 
 def fetch_articles_from_feed(feed_url):
-    """Fetch articles from RSS feed and enhance with newspaper3k"""
     print(f"📡 Fetching from: {feed_url}")
     
     try:
@@ -192,9 +161,6 @@ def save_articles_to_db(articles):
                     published=published_date or datetime.utcnow(),
                     updated=updated_date,
                     categories=article_data["categories"][:100] if article_data["categories"] else None,
-                    source_feed=article_data["source_feed"][:200],
-                    guid=article_data["guid"][:500] if article_data["guid"] else None,
-                    language=article_data["language"][:10] if article_data["language"] else None,
                     thumbnail_url=article_data["thumbnail_url"][:200] if article_data["thumbnail_url"] else None
                 )
                 
@@ -215,10 +181,6 @@ def save_articles_to_db(articles):
 
 def main1():
     """Main execution function"""
-    print("🚀 Starting enhanced RSS + newspaper3k fetch process...")
-    print("📋 This combines RSS feed discovery with newspaper3k content extraction")
-    print("✨ Benefits: Clean text, better authors, full content, featured images")
-    print()
     
     # Get RSS feeds from database
     feeds = get_rss_feeds()
@@ -226,8 +188,6 @@ def main1():
     if not feeds:
         print("❌ No RSS feeds found in database 'rss' table!")
         return
-    
-    print(f"📡 Found {len(feeds)} RSS feeds in database")
     
     # Fetch articles from all feeds
     all_articles = []
