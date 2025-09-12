@@ -59,7 +59,7 @@ def fetch_articles_from_feed(feed_url):
             print(f"⚠️ Warning: Feed may have parsing issues - {feed.bozo_exception}")
         
         articles = []
-        for entry in feed.entries[:10]:  # Limit to 10 articles per feed for demo
+        for entry in feed.entries:  # Limit to 10 articles per feed for demo
             
             # Get basic RSS data
             rss_title = getattr(entry, 'title', 'No Title')

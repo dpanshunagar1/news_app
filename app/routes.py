@@ -5,6 +5,8 @@ from app.models import Article
 from app.config import Config
 from fetch import main1
 import os
+import threading
+import time
 
 
 main = Blueprint('main', __name__)
@@ -189,12 +191,67 @@ def article_detail(article_id):
 
 CRON_SECRET = os.getenv("CRON_SECRET", "changeme")
 
+# Global variable to track fetch status
+fetch_status = {
+    "running": False,
+    "last_run": None,
+    "last_status": "idle"
+}
+
+def background_fetch():
+    """Run the fetch process in background"""
+    global fetch_status
+    try:
+        fetch_status["running"] = True
+        fetch_status["last_status"] = "running"
+        print("🚀 Starting background RSS fetch...")
+        
+        main1()  # This can take as long as needed
+        
+        fetch_status["last_status"] = "success"
+        fetch_status["last_run"] = time.time()
+        print("✅ Background RSS fetch completed successfully")
+        
+    except Exception as e:
+        fetch_status["last_status"] = f"error: {str(e)}"
+        print(f"❌ Background RSS fetch failed: {e}")
+    finally:
+        fetch_status["running"] = False
+
 @main.route("/cron/fetch/", methods=["POST", "GET"])
 def cron_fetch():
+    """Trigger RSS fetch in background thread"""
     token = request.args.get("token")
     if token != CRON_SECRET:
         return jsonify({"error": "Unauthorized"}), 403
-    main1()
-    return jsonify({"status": "success"})
+    
+    # Check if fetch is already running
+    if fetch_status["running"]:
+        return jsonify({
+            "status": "already_running",
+            "message": "Fetch process is already running"
+        }), 202
+    
+    # Start background thread
+    thread = threading.Thread(target=background_fetch)
+    thread.daemon = True  # Thread will die when main process dies
+    thread.start()
+    
+    return jsonify({
+        "status": "started",
+        "message": "RSS fetch started in background"
+    })
+
+
+
+@main.route("/cron/status/", methods=["GET"])
+def cron_status():
+    """Check the status of RSS fetch process"""
+    return jsonify({
+        "running": fetch_status["running"],
+        "last_run": fetch_status["last_run"],
+        "last_status": fetch_status["last_status"],
+        "last_run_time": time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime(fetch_status["last_run"])) if fetch_status["last_run"] else None
+    })
 
 
