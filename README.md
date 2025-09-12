@@ -17,7 +17,7 @@ A modern Flask-based RSS news aggregator that fetches, processes, and displays a
 - **Backend**: Flask, SQLAlchemy, PostgreSQL
 - **Content Processing**: feedparser, newspaper3k, BeautifulSoup
 - **Database**: PostgreSQL (Supabase compatible)
-- **Deployment**: Gunicorn, Render/Railway ready
+- **Deployment**: Gunicorn, Railway ready
 - **Environment**: Python 3.10+
 
 ## 📁 Project Structure
@@ -86,7 +86,7 @@ news-aggregator/
    python run.py
    ```
 
-Visit `http://127.0.0.1:5000` to view the application.
+Visit `https://web-production-3df2.up.railway.app/` to view the application.
 
 ## ⚙️ Configuration
 
@@ -95,6 +95,7 @@ Visit `http://127.0.0.1:5000` to view the application.
 Create a `.env` file with the following variables:
 
 ```env
+
 # Flask Configuration
 FLASK_SECRET_KEY=your-secret-key-here
 
@@ -106,35 +107,9 @@ RSS_FEEDS=https://rss.cnn.com/rss/edition.rss,https://feeds.bbci.co.uk/news/rss.
 
 # Cron Secret for scheduled tasks
 CRON_SECRET=your-cron-secret-here
+
 ```
 
-### RSS Feeds Setup
-
-1. Add RSS feed URLs to your database `rss` table:
-   ```sql
-   CREATE TABLE rss (
-       id SERIAL PRIMARY KEY,
-       url TEXT NOT NULL
-   );
-   
-   INSERT INTO rss (url) VALUES 
-   ('https://rss.cnn.com/rss/edition.rss'),
-   ('https://feeds.bbci.co.uk/news/rss.xml'),
-   ('https://www.reuters.com/rssFeed/topNews');
-   ```
-
-## 📡 API Endpoints
-
-### Articles API
-- `GET /api/articles` - Get paginated articles with filtering
-- `GET /api/articles?page=2&author=John&category=tech` - Filtered results
-
-### Cron Endpoint
-- `POST /cron/fetch/?token=YOUR_CRON_SECRET` - Trigger article fetch
-
-### Web Interface
-- `GET /` - Homepage with article listing
-- `GET /article/<id>` - Individual article view
 
 ## 🔄 Article Fetching Process
 
@@ -144,82 +119,6 @@ CRON_SECRET=your-cron-secret-here
 4. **Quality Assessment**: Rates content quality automatically
 5. **Database Storage**: Saves processed articles with rich metadata
 
-## 🚀 Deployment
-
-### Render Deployment
-
-1. **Push to GitHub** (ensure `.env` is in `.gitignore`)
-
-2. **Connect to Render** using the included `render.yaml`
-
-3. **Set Environment Variables** in Render dashboard:
-   - `FLASK_SECRET_KEY`
-   - `DATABASE_URL`
-   - `RSS_FEEDS`
-   - `CRON_SECRET`
-
-4. **Deploy** - Render will automatically build and deploy
-
-### Manual Deployment
-
-```bash
-# Production server with Gunicorn
-gunicorn --bind 0.0.0.0:5000 --workers 4 wsgi:app
-```
-
-## 📊 Database Schema
-
-### Articles Table
-```sql
-CREATE TABLE articles (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(500) NOT NULL,
-    link VARCHAR(1000) UNIQUE NOT NULL,
-    summary TEXT,
-    content TEXT,
-    author VARCHAR(200),
-    published TIMESTAMP,
-    updated TIMESTAMP,
-    categories VARCHAR(500),
-    thumbnail_url VARCHAR(1000),
-    created_at TIMESTAMP DEFAULT NOW()
-);
-```
-
-### RSS Feeds Table
-```sql
-CREATE TABLE rss (
-    id SERIAL PRIMARY KEY,
-    url TEXT NOT NULL
-);
-```
-
-## 🔧 Development
-
-### Running Tests
-```bash
-# Add your test commands here
-python -m pytest
-```
-
-### Code Formatting
-```bash
-# Format code with black
-black .
-
-# Sort imports
-isort .
-```
-
-### Adding New RSS Feeds
-```python
-from database import get_db_connection
-
-conn = get_db_connection()
-cur = conn.cursor()
-cur.execute("INSERT INTO rss (url) VALUES (%s)", ("https://new-feed-url.com/rss",))
-conn.commit()
-```
 
 ## 📈 Features in Detail
 
@@ -244,49 +143,9 @@ conn.commit()
 - Filter support
 - Error handling
 
-## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
-## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **Database Connection Error**
-   - Check `DATABASE_URL` format
-   - Ensure database is accessible
-   - Verify credentials
-
-2. **RSS Feed Parsing Issues**
-   - Check feed URLs are valid
-   - Some feeds may have parsing restrictions
-   - Monitor logs for specific errors
-
-3. **Content Extraction Failures**
-   - newspaper3k may fail on some sites
-   - Fallback to RSS content is automatic
-   - Check site accessibility
-
-### Logs
-```bash
-# View application logs
-tail -f logs/app.log
-
-# Database query logs
-tail -f logs/db.log
-```
-
-## 📞 Support
-
-For support, email your-email@example.com or create an issue on GitHub.
 
 ## 🙏 Acknowledgments
 
