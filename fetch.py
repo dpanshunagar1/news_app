@@ -111,7 +111,7 @@ def fetch_articles_from_feed(feed_url):
                 "keywords": ', '.join(newspaper_data['keywords'][:10]) if newspaper_data['keywords'] else None
             })
         
-        print(f"  📊 Successfully processed {len(articles)} articles from this feed")
+        #print(f"  📊 Successfully processed {len(articles)} articles from this feed")
         return articles
         
     except Exception as e:
@@ -164,9 +164,8 @@ def save_articles_to_db(articles):
                     thumbnail_url=article_data["thumbnail_url"][:200] if article_data["thumbnail_url"] else None
                 )
                 
-                session.add(article)
+                session.merge(article)
                 saved_count += 1
-                print(f"  ✅ Prepared: {article_data['title'][:60]}...")
             
             # Commit all articles at once
             session.commit()
